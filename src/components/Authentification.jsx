@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setUtilisateur } from '../redux/actions/authActions';
 
-const Authentification = ({ setUtilisateurActuel }) => {
+const Authentification = () => {
   const [estConnexion, setEstConnexion] = useState(true);
   const [donneesFormulaire, setDonneesFormulaire] = useState({
     email: '',
@@ -9,6 +11,7 @@ const Authentification = ({ setUtilisateurActuel }) => {
     nom: ''
   });
   const naviguer = useNavigate();
+  const dispatch = useDispatch();
 
   const gererSoumission = async (e) => {
     e.preventDefault();
@@ -23,8 +26,7 @@ const Authentification = ({ setUtilisateurActuel }) => {
 
       if (utilisateur) {
         try {
-          localStorage.setItem('currentUser', JSON.stringify(utilisateur));
-          setUtilisateurActuel(utilisateur);
+          dispatch(setUtilisateur(utilisateur));
           naviguer('/locations');
         } catch (error) {
           console.error('Erreur lors de la connexion:', error);
@@ -50,8 +52,7 @@ const Authentification = ({ setUtilisateurActuel }) => {
 
         utilisateurs.push(nouvelUtilisateur);
         localStorage.setItem('utilisateurs', JSON.stringify(utilisateurs));
-        localStorage.setItem('currentUser', JSON.stringify(nouvelUtilisateur));
-        setUtilisateurActuel(nouvelUtilisateur);
+        dispatch(setUtilisateur(nouvelUtilisateur));
         naviguer('/locations');
       } catch (error) {
         console.error('Erreur lors de l\'inscription:', error);

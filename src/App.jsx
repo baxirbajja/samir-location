@@ -1,21 +1,23 @@
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { createStore, combineReducers } from 'redux';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+import authReducer from './redux/reducers/authReducer';
+import { logout } from './redux/actions/authActions';
 import Authentification from './components/Authentification';
 import Locations from './components/Locations';
 import TableauBordAdmin from './components/TableauBordAdmin';
 import './App.css';
 
-function App() {
-  const [utilisateurActuel, setUtilisateurActuel] = useState(null);
-  const [loading, setLoading] = useState(true);
+const rootReducer = combineReducers({
+  auth: authReducer
+});
 
-  useEffect(() => {
-    const user = localStorage.getItem('currentUser');
-    if (user) {
-      setUtilisateurActuel(JSON.parse(user));
-    }
-    setLoading(false);
-  }, []);
+const store = createStore(rootReducer);
+
+function App() {
+  const auth = useSelector(state => state.auth);
+  const { utilisateurActuel, loading } = auth;
+  const dispatch = useDispatch();
 
   const RequireAuth = ({ children }) => {
     if (loading) return null;
@@ -34,8 +36,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    setUtilisateurActuel(null);
+    dispatch(logout());
   };
 
   if (loading) {
@@ -105,7 +106,7 @@ function App() {
                 utilisateurActuel ? (
                   <Navigate to="/locations" replace />
                 ) : (
-                  <Authentification setUtilisateurActuel={setUtilisateurActuel} />
+                  <Authentification />
                 )
               } 
             />
@@ -133,4 +134,12 @@ function App() {
   );
 }
 
-export default App;
+function AppWrapper() {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
+
+export default AppWrapper;
